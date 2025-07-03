@@ -1,0 +1,255 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Khaylacantik
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <style>
+   @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
+    body {
+      font-family: "Inter", sans-serif;
+    }
+  </style>
+ </head>
+ <body class="bg-[#1E1B3B] text-white min-h-screen flex flex-col items-center p-4">
+  <header class="w-full max-w-md flex items-center justify-between text-xs text-white/80 mb-6">
+   <button aria-label="Back" class="text-white/80">
+    <i class="fas fa-chevron-down">
+    </i>
+   </button>
+   <div class="text-center flex flex-col">
+    <span class="uppercase tracking-widest text-[10px] font-normal leading-none">
+     Memainkan dari album
+    </span>
+    <span class="font-bold text-sm leading-none" id="albumTitle">
+     Walk the Talk
+    </span>
+   </div>
+   <button aria-label="More options" class="text-white/80 text-lg">
+    <i class="fas fa-ellipsis-v">
+    </i>
+   </button>
+  </header>
+  <main class="w-full max-w-md bg-[#1E1B3B] rounded-xl mb-8">
+   <img alt="Album cover" class="w-full rounded-xl" draggable="false" height="400" id="albumCover" src="https://storage.googleapis.com/a1aa/image/957583d5-87c2-4265-9264-08b848613134.jpg" width="400"/>
+  </main>
+  <section class="w-full max-w-md px-1 mb-6">
+   <div class="flex justify-between items-center mb-1">
+    <div>
+     <h1 class="font-bold text-lg leading-none" id="songTitle">
+      Song Title
+     </h1>
+     <p class="text-white/70 text-sm leading-none" id="artistName">
+      Artist
+     </p>
+    </div>
+    <button aria-label="Add to playlist" class="text-white/80 text-2xl">
+     <i class="fas fa-plus-circle">
+     </i>
+    </button>
+   </div>
+   <div class="w-full">
+    <input aria-label="Song progress" class="w-full h-1 rounded-lg accent-white" id="progressBar" max="100" min="0" type="range" value="0"/>
+    <div class="flex justify-between text-xs text-white/70 mt-1 font-mono">
+     <span id="currentTime">
+      0:00
+     </span>
+     <span id="duration">
+      0:00
+     </span>
+    </div>
+   </div>
+  </section>
+  <section class="w-full max-w-md flex justify-between items-center mb-8 px-6 text-white/80 text-2xl">
+   <button aria-label="Shuffle" class="text-[#1ED760]" id="shuffleBtn">
+    <i class="fas fa-random">
+    </i>
+   </button>
+   <button aria-label="Previous" class="cursor-pointer" id="prevBtn">
+    <i class="fas fa-step-backward">
+    </i>
+   </button>
+   <button aria-label="Play" class="bg-white text-[#1E1B3B] rounded-full w-14 h-14 flex items-center justify-center shadow-lg" id="playPauseBtn">
+    <i class="fas fa-play text-2xl" id="playPauseIcon">
+    </i>
+   </button>
+   <button aria-label="Next" class="cursor-pointer" id="nextBtn">
+    <i class="fas fa-step-forward">
+    </i>
+   </button>
+   <button aria-label="Timer">
+    <i class="fas fa-stopwatch">
+    </i>
+   </button>
+  </section>
+  <section class="w-full max-w-md flex justify-between items-center px-6 text-white/80 text-xl">
+   <button aria-label="Connect to device">
+    <i class="fas fa-tv">
+    </i>
+   </button>
+   <button aria-label="Share">
+    <i class="fas fa-share-alt">
+    </i>
+   </button>
+  </section>
+  <audio id="audioPlayer">
+  </audio>
+  <script>
+   const songs = [
+      {
+        title: "Monolog",
+        artist: "Pamungkas",
+        album: "Khaylacantik",
+        cover:
+          "foto4.jpg",
+        src:
+          "https://tmpfiles.org/dl/4173399/1751529314658.mp3",
+      },
+      {
+        title: "Sempurna",
+        artist: "Andra and The Backbone",
+        album: "Khaylalucyu",
+        cover:
+          "foto3.jpg",
+        src:
+          "https://tmpfiles.org/dl/4173525/1751529405143.mp3",
+      },
+      {
+        title: "Open Arms",
+        artist: "SZA",
+        album: "Khaylabeutiful",
+        cover:
+          "foto2.jpg",
+        src:
+          "https://tmpfiles.org/dl/4174137/1751529623226.mp3",
+      },
+      {
+        title: "Perfect",
+        artist: "Ed Sheeran",
+        album: "Khaylaimup",
+        cover:
+          "foto5.jpg",
+        src:
+          "https://tmpfiles.org/dl/4173959/1751529567115.mp3",
+      },
+      {
+        title: "Somebody's Pleasure",
+        artist: "Aziz Hedra",
+        album: "Khaylaperfect",
+        cover:
+          "foto1.jpg",
+        src:
+          "https://tmpfiles.org/dl/4173796/1751529510474.mp3",
+      },
+    ];
+
+    const audioPlayer = document.getElementById("audioPlayer");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const playPauseIcon = document.getElementById("playPauseIcon");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const songTitle = document.getElementById("songTitle");
+    const artistName = document.getElementById("artistName");
+    const albumCover = document.getElementById("albumCover");
+    const albumTitle = document.getElementById("albumTitle");
+    const progressBar = document.getElementById("progressBar");
+    const currentTimeEl = document.getElementById("currentTime");
+    const durationEl = document.getElementById("duration");
+
+    let currentSongIndex = 0;
+    let isPlaying = false;
+    let updateProgressInterval;
+
+    function loadSong(index) {
+      const song = songs[index];
+      audioPlayer.src = song.src;
+      songTitle.textContent = song.title;
+      artistName.textContent = song.artist;
+      albumCover.src = song.cover;
+      albumCover.alt = `Album cover for ${song.title} by ${song.artist}`;
+      albumTitle.textContent = song.album;
+      progressBar.value = 0;
+      currentTimeEl.textContent = "0:00";
+      durationEl.textContent = "0:00";
+    }
+
+    function playSong() {
+      audioPlayer.play();
+      isPlaying = true;
+      playPauseIcon.classList.remove("fa-play");
+      playPauseIcon.classList.add("fa-pause");
+      updateProgressInterval = setInterval(updateProgress, 500);
+    }
+
+    function pauseSong() {
+      audioPlayer.pause();
+      isPlaying = false;
+      playPauseIcon.classList.remove("fa-pause");
+      playPauseIcon.classList.add("fa-play");
+      clearInterval(updateProgressInterval);
+    }
+
+    function togglePlayPause() {
+      if (isPlaying) {
+        pauseSong();
+      } else {
+        playSong();
+      }
+    }
+
+    function prevSong() {
+      currentSongIndex--;
+      if (currentSongIndex < 0) {
+        currentSongIndex = songs.length - 1;
+      }
+      loadSong(currentSongIndex);
+      playSong();
+    }
+
+    function nextSong() {
+      currentSongIndex++;
+      if (currentSongIndex >= songs.length) {
+        currentSongIndex = 0;
+      }
+      loadSong(currentSongIndex);
+      playSong();
+    }
+
+    function updateProgress() {
+      if (!audioPlayer.duration) return;
+      const current = audioPlayer.currentTime;
+      const duration = audioPlayer.duration;
+      progressBar.max = duration;
+      progressBar.value = current;
+      currentTimeEl.textContent = formatTime(current);
+      durationEl.textContent = formatTime(duration);
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+    }
+
+    progressBar.addEventListener("input", () => {
+      audioPlayer.currentTime = progressBar.value;
+      updateProgress();
+    });
+
+    audioPlayer.addEventListener("ended", () => {
+      nextSong();
+    });
+
+    playPauseBtn.addEventListener("click", togglePlayPause);
+    prevBtn.addEventListener("click", prevSong);
+    nextBtn.addEventListener("click", nextSong);
+
+    // Initialize player with first song
+    loadSong(currentSongIndex);
+  </script>
+ </body>
+</html>
